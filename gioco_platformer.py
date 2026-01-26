@@ -7,7 +7,7 @@ import time
 
 
 
-class BabboNatale(arcade.Window):
+class SuperMaincraft(arcade.Window):
 
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
@@ -30,8 +30,7 @@ class BabboNatale(arcade.Window):
 
         # Gioco
         self.soundOnOff = True
-        self.moneta_raccolti = 0
-        self.moneta_spawn_count = 1
+        self.moneta_spawn_count = 5
         self.punteggio = 0
 
         self.setup()
@@ -43,17 +42,16 @@ class BabboNatale(arcade.Window):
         self.babbo.center_x = 275
         self.babbo.center_y = 100
         self.lista_babbo.append(self.babbo)
-        self.wall_list = arcade.SpriteList(use_spatial_hash=True)
         self.lista_moneta.clear()
 
         
-        for _ in range(self.moneta_spawn_count):
+        for i in range(self.moneta_spawn_count):
             self.crea_moneta()
 
     def crea_moneta(self):
 
-        self.moneta = arcade.Sprite("./assets/moneta.gif",0.1)
-        self.moneta.center_x = random.randint(50, 550)
+        self.moneta = arcade.Sprite("./assets/moneta.gif",0.06)
+        self.moneta.center_x = random.randint(350, 500,)
         self.moneta.center_y = 100
         self.lista_moneta.append(self.moneta)
 
@@ -72,6 +70,13 @@ class BabboNatale(arcade.Window):
             f"Punteggio: {self.punteggio}",
             20, self.height - 30,
             arcade.color.WHITE, 15
+        )
+        
+        arcade.draw_text(
+            f"SUPER MAINCRAFT",50,
+            self.width -360,
+            self.height - 30,
+            arcade.color.BLACK, 15
         )
 
     def on_update(self, delta_time):
@@ -133,7 +138,7 @@ class BabboNatale(arcade.Window):
 
 
 def main():
-    gioco = BabboNatale(600, 600, "Babbo Natale")
+    gioco = SuperMaincraft(600, 600, "Babbo Natale")
     arcade.run()
 
 
