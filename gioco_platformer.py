@@ -30,11 +30,14 @@ class SuperMaincraft(arcade.Window):
         self.soundOnOff = True
         self.moneta_spawn_count = 5
         self.punteggio = 0
+        
+        #camera
+        self.camera = arcade.camera.Camera2D()
 
         self.setup()
 
     def setup(self):
-
+        
         self.background = arcade.load_texture("./assets/sfondo-2.jpg")
         self.babbo = arcade.Sprite("./assets/mario.png", scale=0.1)
         self.babbo.center_x = 275
@@ -55,12 +58,14 @@ class SuperMaincraft(arcade.Window):
 
     def on_draw(self):
         self.clear()
+        
+        self.camera.use()
 
         arcade.draw_texture_rect(
             self.background,
             arcade.LBWH(0, 0, 600, 600)
         )
-
+        self.camera 
         self.lista_moneta.draw()
         self.lista_babbo.draw()
 
@@ -79,8 +84,11 @@ class SuperMaincraft(arcade.Window):
         )
 
     def on_update(self, delta_time):
+        
         change_x = 0
         change_y = 0
+        
+        self.camera.position = self.babbo.position
 
         if self.up_pressed:
             change_y += self.velocita
