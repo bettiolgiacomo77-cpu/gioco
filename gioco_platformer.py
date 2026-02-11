@@ -7,7 +7,7 @@ import time
 
 
 
-class SuperMaincraft(arcade.Window):
+class giocoplatformer(arcade.Window):
 
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
@@ -15,6 +15,9 @@ class SuperMaincraft(arcade.Window):
         self.babbo = None
         self.lista_babbo = arcade.SpriteList()
         self.lista_moneta = arcade.SpriteList()
+        
+        # muri
+        self.wall_list = None
 
         self.background = None
         self.suono_munch = arcade.load_sound("./assets/audio.mp3")
@@ -38,12 +41,30 @@ class SuperMaincraft(arcade.Window):
 
     def setup(self):
         
+        self.wall_list = arcade.SpriteList(use_spatial_hash=True)
         self.background = arcade.load_texture("./assets/sfondo-2.jpg")
         self.babbo = arcade.Sprite("./assets/mario.png", scale=0.1)
         self.babbo.center_x = 275
         self.babbo.center_y = 100
         self.lista_babbo.append(self.babbo)
         self.lista_moneta.clear()
+        
+        # creazione muro
+        for x in range(0, 1250, 64):
+            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall.center_x = x
+            wall.center_y = 32
+            self.wall_list.append(wall)
+            
+        
+        coordinate_list = [[512, 96], [256, 96], [768, 96]]
+            
+            
+        for coordinate in coordinate_list:
+            # Add a crate on the ground
+            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall.position = coordinate
+            self.wall_list.append(wall)
 
         
         for i in range(self.moneta_spawn_count):
@@ -68,6 +89,7 @@ class SuperMaincraft(arcade.Window):
         self.camera 
         self.lista_moneta.draw()
         self.lista_babbo.draw()
+        self.wall_list.draw()
 
         arcade.draw_text(
             f"Punteggio: {self.punteggio}",
@@ -77,7 +99,7 @@ class SuperMaincraft(arcade.Window):
         )
         
         arcade.draw_text(
-            f"SUPER MAINCRAFT",
+            f"gioco platformer",
             self.width -360,
             self.height - 30,
             arcade.color.BLACK, 15
@@ -145,7 +167,7 @@ class SuperMaincraft(arcade.Window):
 
 
 def main():
-    gioco = SuperMaincraft(600, 600, "Babbo Natale")
+    gioco = giocoplatformer(1920,1080, "Babbo Natale")
     arcade.run()
 
 
