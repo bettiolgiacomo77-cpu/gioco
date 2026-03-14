@@ -25,7 +25,7 @@ class giocoplatformer(arcade.Window):
         self.wall_list = None
 
         self.background = None
-        self.suono_munch = arcade.load_sound("./assets/audio.mp3")
+        self.suono_munch = arcade.load_sound("./assets/mangiare.mp3")
 
         # Movimento
         self.up_pressed = False
@@ -47,8 +47,8 @@ class giocoplatformer(arcade.Window):
     def setup(self):
         
         self.wall_list = arcade.SpriteList(use_spatial_hash=True)
-        self.background = arcade.load_texture("./assets/sfondo-2.jpg")
-        self.babbo = arcade.Sprite("./assets/mario.png", scale=0.1)
+        self.background = arcade.load_texture("./assets/foresta.jpg")
+        self.babbo = arcade.Sprite("./assets/lama.gif", scale=0.1)
         self.babbo.center_x = 275
         self.babbo.center_y = 100
         self.lista_babbo.append(self.babbo)
@@ -56,14 +56,14 @@ class giocoplatformer(arcade.Window):
         
         # creazione muro
         for x in range(0, 1250, 64):
-            wall = arcade.Sprite("./assets/mattone.webp", 0.17)
+            wall = arcade.Sprite("./assets/terra.png", 0.17)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
             
         # creazione sfondo
         for x in range(0, 1250, 64):
-            wall = arcade.Sprite("./assets/sfondo-2.jpg")
+            wall = arcade.Sprite("./assets/terra.png")
             wall.center_x = 0
             wall.center_y = 0
             self.wall_list.append(wall)
@@ -75,7 +75,7 @@ class giocoplatformer(arcade.Window):
             
         for coordinate in coordinate_list:
             # Add a crate on the ground
-            wall = arcade.Sprite("./assets/mattone.webp", 0.17)
+            wall = arcade.Sprite("./assets/terra.webp", 0.17)
             wall.position = coordinate
             self.wall_list.append(wall)
 
@@ -85,7 +85,7 @@ class giocoplatformer(arcade.Window):
 
     def crea_moneta(self):
 
-        self.moneta = arcade.Sprite("./assets/moneta.gif",0.06)
+        self.moneta = arcade.Sprite("./assets/grano.webp",0.06)
         self.moneta.center_x = random.randint(350, 500,)
         self.moneta.center_y = 100
         self.lista_moneta.append(self.moneta)
