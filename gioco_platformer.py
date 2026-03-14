@@ -7,6 +7,11 @@ import time
 
 
 
+
+
+
+
+
 class giocoplatformer(arcade.Window):
 
     def __init__(self, larghezza, altezza, titolo):
@@ -51,10 +56,18 @@ class giocoplatformer(arcade.Window):
         
         # creazione muro
         for x in range(0, 1250, 64):
-            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall = arcade.Sprite("./assets/mattone.webp", 0.17)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
+            
+        # creazione sfondo
+        for x in range(0, 1250, 64):
+            wall = arcade.Sprite("./assets/sfondo-2.jpg")
+            wall.center_x = 0
+            wall.center_y = 0
+            self.wall_list.append(wall)
+        
             
         
         coordinate_list = [[512, 96], [256, 96], [768, 96]]
@@ -62,7 +75,7 @@ class giocoplatformer(arcade.Window):
             
         for coordinate in coordinate_list:
             # Add a crate on the ground
-            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall = arcade.Sprite("./assets/mattone.webp", 0.17)
             wall.position = coordinate
             self.wall_list.append(wall)
 
