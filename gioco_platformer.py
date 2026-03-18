@@ -3,8 +3,7 @@ import arcade
 
 """  gioco platformer per scuola"""
 
-GRAVITY = 1
-PLAYER_JUMP_SPEED = 20
+
 
 PLAYER_MOVEMENT_SPEED = 5
 
@@ -12,8 +11,6 @@ class giocoplatformer(arcade.Window):
 
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
-        
-        self.physics_engine = None
         
         self.percorso = 0
         
@@ -75,10 +72,7 @@ class giocoplatformer(arcade.Window):
         self.crea_moneta()
         
 
-        # mette la fisica   
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.lista_babbo, gravity_constant=GRAVITY, self.wall_list
-        )
+        
         
     def punti_percorso(self):
         
@@ -192,21 +186,10 @@ class giocoplatformer(arcade.Window):
                 moneta.remove_from_sprite_lists()
                 self.punteggio += 1
                 
-                
-        self.physics_engine.update()
-
-    def on_key_press(self, key, modificatori):
         
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.lista_babbo.change_y = PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.lista_babbo.change_y = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.lista_babbo.change_x = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.lista_babbo.change_x = PLAYER_MOVEMENT_SPEED
+    def on_key_press(self, tasto, modificatori):
+    
             
-        """
         if tasto in (arcade.key.UP, arcade.key.W):
             self.up_pressed = True
         elif tasto in (arcade.key.DOWN, arcade.key.S):
@@ -215,21 +198,10 @@ class giocoplatformer(arcade.Window):
             self.left_pressed = True
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
-        """
     
-    def on_key_release(self, key, modificatori):
+    def on_key_release(self, tasto, modificatori):
         """Gestisce il rilascio dei tasti"""
-        
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.lista_babbo.change_y = 0
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.lista_babbo.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.lista_babbo.change_x = 0
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.lista_babbo.change_x = 0
-            
-        """
+
         if tasto in (arcade.key.UP, arcade.key.W):
             self.up_pressed = False
         elif tasto in (arcade.key.DOWN, arcade.key.S):
@@ -238,7 +210,6 @@ class giocoplatformer(arcade.Window):
             self.left_pressed = False
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
-        """
 
 
 
