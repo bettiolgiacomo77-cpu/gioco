@@ -70,13 +70,6 @@ class giocoplatformer(arcade.Window):
 
 
         self.crea_moneta()
-        
-
-        
-        
-    def punti_percorso(self):
-        
-        pass
 
         
     def crea_moneta(self):
@@ -201,7 +194,6 @@ class giocoplatformer(arcade.Window):
     
     def on_key_release(self, tasto, modificatori):
         """Gestisce il rilascio dei tasti"""
-
         if tasto in (arcade.key.UP, arcade.key.W):
             self.up_pressed = False
         elif tasto in (arcade.key.DOWN, arcade.key.S):
