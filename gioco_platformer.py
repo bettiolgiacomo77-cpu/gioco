@@ -1,37 +1,41 @@
 import arcade
-import random
-import time
 
 
 """  gioco platformer per scuola"""
 
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
 
+PLAYER_MOVEMENT_SPEED = 5
 
 class giocoplatformer(arcade.Window):
 
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
         
+        self.physics_engine = None
+        
+        self.percorso = 0
+        
         self.babbo = None
+        self.moneta = None
         self.lista_babbo = arcade.SpriteList()
         self.lista_moneta = arcade.SpriteList()
         
         # muri
         self.wall_list = None
-
         self.background = None
-        self.suono_munch = arcade.load_sound("./assets/audio.mp3")
+        self.suono_munch = arcade.load_sound("./assets/mangiare.mp3")
 
         # Movimento
         self.up_pressed = False
         self.down_pressed = False
         self.left_pressed = False
         self.right_pressed = False
+        
         self.velocita = 4
 
         # Gioco
-        self.soundOnOff = True
-        self.moneta_spawn_count = 5
         self.punteggio = 0
         
         #camera
@@ -41,54 +45,70 @@ class giocoplatformer(arcade.Window):
 
     def setup(self):
         
-        self.wall_list = arcade.SpriteList(use_spatial_hash=True)
-        self.background = arcade.load_texture("./assets/sfondo-2.jpg")
-        self.babbo = arcade.Sprite("./assets/mario.png", scale=0.1)
-        self.babbo.center_x = 275
-        self.babbo.center_y = 100
+        self.babbo = arcade.Sprite("./assets/lama.gif", scale=0.1)
+        self.babbo.center_x = 50
+        self.babbo.center_y = 115
         self.lista_babbo.append(self.babbo)
+        
+        self.wall_list = arcade.SpriteList(use_spatial_hash=True)
+        
+        self.background = arcade.load_texture("./assets/foresta.jpg")
+                
         self.lista_moneta.clear()
         
-        # creazione muro
+        # creazione pavimento
         for x in range(0, 1250, 64):
-            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall = arcade.Sprite("./assets/terra.png", 0.17)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
             
+        # crea gli ostacoli
+        coordinate_list = [[250, 105], [500, 105], [750, 105]]
         
-        coordinate_list = [[512, 96], [256, 96], [768, 96]]
-            
-            
         for coordinate in coordinate_list:
-            # Add a crate on the ground
-            wall = arcade.Sprite("./assets/mattone.webp", 0.5)
+            wall = arcade.Sprite("./assets/tubo.png", 0.17)
             wall.position = coordinate
             self.wall_list.append(wall)
 
+
+        self.crea_moneta()
         
-        for i in range(self.moneta_spawn_count):
-            self.crea_moneta()
 
+        # mette la fisica   
+        self.physics_engine = arcade.PhysicsEngineSimple(
+            self.lista_babbo, gravity_constant=GRAVITY, self.wall_list
+        )
+        
+    def punti_percorso(self):
+        
+        pass
+
+        
     def crea_moneta(self):
-
-        self.moneta = arcade.Sprite("./assets/moneta.gif",0.06)
-        self.moneta.center_x = random.randint(350, 500,)
-        self.moneta.center_y = 100
-        self.lista_moneta.append(self.moneta)
+        
+        coordinate_ = [[150, 105], [180, 105], [810, 105], [840,105], [870,105], [250,150]]
+        
+        for coordinate in coordinate_:
+            self.moneta = arcade.Sprite("./assets/grano.webp",0.2)
+            self.moneta.position = coordinate
+            self.lista_moneta.append(self.moneta)
 
     def on_draw(self):
+                
         self.clear()
-        
-        self.camera.use()
 
         arcade.draw_texture_rect(
             self.background,
-            arcade.LBWH(0, 0, 600, 600)
+            arcade.LBWH(0, 0, 1060, 720)
         )
-        self.camera 
+        
+        self.camera
+        
         self.lista_moneta.draw()
+        
         self.lista_babbo.draw()
+        
         self.wall_list.draw()
 
         arcade.draw_text(
@@ -100,17 +120,36 @@ class giocoplatformer(arcade.Window):
         
         arcade.draw_text(
             f"gioco platformer",
-            self.width -360,
+            180,
             self.height - 30,
             arcade.color.BLACK, 15
         )
+        
+        arcade.draw_text(
+            f"percorso: {int(self.percorso)}",
+            350,
+            self.height - 30,
+            arcade.color.BLACK, 15
+        )
+        
+        self.camera.use()
 
     def on_update(self, delta_time):
+        
+        # calcola il percorso fatto 
+        self.percorso += delta_time
+        
+        # Calcola movimento in base ai tasti premuti
         
         change_x = 0
         change_y = 0
         
         self.camera.position = self.babbo.position
+        
+        """..."""
+        # per non far vedere il vuoto 
+        camera_x = max(self.camera.position[0], self.width / 2) 
+        self.camera.position = (camera_x, self.height / 2)
 
         if self.up_pressed:
             change_y += self.velocita
@@ -120,54 +159,91 @@ class giocoplatformer(arcade.Window):
             change_x -= self.velocita
         if self.right_pressed:
             change_x += self.velocita
-
+            
+        # Applica movimento
+        
         self.babbo.center_x += change_x
         self.babbo.center_y += change_y
-
-        self.babbo.center_x = max(0, min(self.width, self.babbo.center_x))
-        self.babbo.center_y = max(0, min(self.height, self.babbo.center_y))
         
+        # Flip orizzontale in base alla direzione
         if change_x < 0: 
             self.babbo.scale = (-0.1, 0.1)
         elif change_x > 0:
             self.babbo.scale = (0.1, 0.1)
+        
+            
+        # Limita movimento dentro lo schermo
+        if self.babbo.center_x < 0:
+            self.babbo.center_x = 0
+        elif self.babbo.center_x > self.width:
+            self.babbo.center_x = self.width
+        
+        if self.babbo.center_y < 0:
+            self.babbo.center_y = 0
+        elif self.babbo.center_y > self.height:
+            self.babbo.center_y = self.height
 
         # Collisioni
-        collisioni = arcade.check_for_collision_with_list(
-            self.babbo, self.lista_moneta
-        )
-
-        if collisioni:
-            if self.soundOnOff:
-                arcade.play_sound(self.suono_munch)
-
+        collisioni = arcade.check_for_collision_with_list(self.babbo, self.lista_moneta)
+                
+        if len(collisioni) > 0: # Vuol dire che il personaggio si è scontrato con qualcosa
+            arcade.play_sound(self.suono_munch,)
             for moneta in collisioni:
                 moneta.remove_from_sprite_lists()
                 self.punteggio += 1
+                
+                
+        self.physics_engine.update()
 
-    def on_key_press(self, key, modifiers):
-        if key in (arcade.key.W, arcade.key.UP):
+    def on_key_press(self, key, modificatori):
+        
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.lista_babbo.change_y = PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.lista_babbo.change_y = -PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.lista_babbo.change_x = -PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.lista_babbo.change_x = PLAYER_MOVEMENT_SPEED
+            
+        """
+        if tasto in (arcade.key.UP, arcade.key.W):
             self.up_pressed = True
-        elif key in (arcade.key.S, arcade.key.DOWN):
+        elif tasto in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = True
-        elif key in (arcade.key.A, arcade.key.LEFT):
+        elif tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = True
-        elif key in (arcade.key.D, arcade.key.RIGHT):
+        elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
-
-    def on_key_release(self, key, modifiers):
-        if key in (arcade.key.W, arcade.key.UP):
+        """
+    
+    def on_key_release(self, key, modificatori):
+        """Gestisce il rilascio dei tasti"""
+        
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.lista_babbo.change_y = 0
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.lista_babbo.change_y = 0
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.lista_babbo.change_x = 0
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.lista_babbo.change_x = 0
+            
+        """
+        if tasto in (arcade.key.UP, arcade.key.W):
             self.up_pressed = False
-        elif key in (arcade.key.S, arcade.key.DOWN):
+        elif tasto in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = False
-        elif key in (arcade.key.A, arcade.key.LEFT):
+        elif tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = False
-        elif key in (arcade.key.D, arcade.key.RIGHT):
+        elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
+        """
+
 
 
 def main():
-    gioco = giocoplatformer(1920,1080, "Babbo Natale")
+    gioco = giocoplatformer(920,620, "Babbo Natale")
     arcade.run()
 
 
