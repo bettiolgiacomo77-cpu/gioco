@@ -1,6 +1,9 @@
 import arcade
 import random
 
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
+
 """  gioco platformer per scuola"""
 
 class giocoplatformer(arcade.Window):
@@ -8,6 +11,9 @@ class giocoplatformer(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
         
+        
+        #gravità
+        self.physics_engine = None
         # oggetti
         self.babbo = None
         self.moneta = None
@@ -22,8 +28,6 @@ class giocoplatformer(arcade.Window):
         self.wall_list = arcade.SpriteList(use_spatial_hash=True)
         
         # Movimento
-        self.up_pressed = False
-        self.down_pressed = False
         self.left_pressed = False
         self.right_pressed = False
         
@@ -53,6 +57,13 @@ class giocoplatformer(arcade.Window):
         """..."""
         # Generazione iniziale del terreno (primi 2000 pixel)
         self.genera_segmento_livello(0, 2000)
+        
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.lista_babbo,
+            gravity_constant=GRAVITY,
+            walls= self.wall_list
+        )
         
     """..."""    
     def genera_segmento_livello(self, start_x, end_x):
@@ -105,7 +116,7 @@ class giocoplatformer(arcade.Window):
             )
         
         arcade.draw_text(
-            f"Endless Runner",
+            f"Llama lama",
             coordinate_testo + 180,
             self.height - 30,
             arcade.color.BLACK, 15
@@ -119,6 +130,11 @@ class giocoplatformer(arcade.Window):
             )
         
         self.camera.use()
+        
+        # serve per mette il testo che si muove con la camera
+        pos_x = self.camera.position[0] - self.width/2
+        arcade.draw_text(f"Punteggio: {self.punteggio}", pos_x + 20, self.height - 40, arcade.color.WHITE, 16, bold=True)
+        arcade.draw_text(f"Distanza: {int(self.babbo.center_x)}m", pos_x + 250, self.height - 40, arcade.color.BLACK, 16)
 
     def on_update(self, delta_time):
         
@@ -134,14 +150,12 @@ class giocoplatformer(arcade.Window):
         camera_x = max(self.camera.position[0], self.width / 2) 
         self.camera.position = (camera_x, self.height / 2)
 
-        if self.up_pressed:
-            change_y += self.velocita
-        if self.down_pressed:
-            change_y -= self.velocita
+        #gestisce il movimento
+        self.babbo.change_x = 0
         if self.left_pressed:
-            change_x -= self.velocita
-        if self.right_pressed:
-            change_x += self.velocita
+            self.babbo.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed:
+            self.babbo.change_x = PLAYER_MOVEMENT_SPEED
             
         #genera nuovi pezzi di mappa    
         if self.babbo.center_x > self.ultimo_x_generato - 1000:
@@ -158,40 +172,40 @@ class giocoplatformer(arcade.Window):
         self.babbo.center_y += change_y
         
         # Flip orizzontale in base alla direzione
-        if change_x < 0: 
+        """if change_x < 0: 
             self.babbo.scale = (-0.1, 0.1)
         elif change_x > 0:
-            self.babbo.scale = (0.1, 0.1)
+            self.babbo.scale = (0.1, 0.1)"""
+
+        if self.babbo.change_x < 0: 
+            self.babbo.scale = -0.1 # Nota: arcade 3.0 gestisce il flip meglio con scale_x
+        elif self.babbo.change_x > 0:
+            self.babbo.scale = 0.1
 
         # Collisioni
         collisioni = arcade.check_for_collision_with_list(self.babbo, self.lista_moneta)
                 
         if len(collisioni) > 0: # Vuol dire che il personaggio si è scontrato con qualcosa
-            arcade.play_sound(self.suono_munch,)
+            arcade.play_sound(self.suono_munch)
             for moneta in collisioni:
                 moneta.remove_from_sprite_lists()
                 self.punteggio += 1
                 
-        
+        self.physics_engine.update()
+                
     def on_key_press(self, tasto, modificatori):
-    
             
-        if tasto in (arcade.key.UP, arcade.key.W):
-            self.up_pressed = True
-        elif tasto in (arcade.key.DOWN, arcade.key.S):
-            self.down_pressed = True
-        elif tasto in (arcade.key.LEFT, arcade.key.A):
+        if tasto in (arcade.key.UP, arcade.key.W, arcade.key.SPACE):
+            # Salta solo se il motore fisico dice che siamo a terra
+            if self.physics_engine.can_jump():
+                self.babbo.change_y = PLAYER_JUMP_SPEED
+        if tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = True
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
-    
     def on_key_release(self, tasto, modificatori):
         """Gestisce il rilascio dei tasti"""
-        if tasto in (arcade.key.UP, arcade.key.W):
-            self.up_pressed = False
-        elif tasto in (arcade.key.DOWN, arcade.key.S):
-            self.down_pressed = False
-        elif tasto in (arcade.key.LEFT, arcade.key.A):
+        if tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = False
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
@@ -199,7 +213,7 @@ class giocoplatformer(arcade.Window):
 
 
 def main():
-    gioco = giocoplatformer(920,620, "Babbo Natale")
+    gioco = giocoplatformer(920,620, "Llama lama")
     arcade.run()
 
 
