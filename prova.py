@@ -84,22 +84,9 @@ class giocoplatformer(arcade.Window):
             wall = arcade.Sprite("./assets/terra.png", 0.17)
             wall.center_x = x
             wall.center_y = 32
-            self.wall_list.append(wall)   
+            self.wall_list.append(wall)    
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            # --- FUNZIONI DI SUPPORTO (Helper) ---
+# --- FUNZIONI DI SUPPORTO (Helper) ---
     def crea_grano(self, x, y):
         moneta = arcade.Sprite("./assets/grano.webp", 0.2)
         moneta.position = [x, y]
@@ -111,6 +98,29 @@ class giocoplatformer(arcade.Window):
         self.wall_list.append(wall)
 
     # --- I 10 MODULI DI PERCORSO ---
+    def genera_pianura(self, start_x):
+        for x in range(start_x + 200, start_x + 900, 200):
+            self.crea_grano(x, 150)
+
+    def genera_ostacoli_fitti(self, start_x):
+        for x in range(start_x + 200, start_x + 900, 45):
+            self.crea_ostacolo(x, 105)
+
+    def genera_salti(self, start_x):
+        for x in range(start_x + 300, start_x + 900, 300):
+            self.crea_ostacolo(x, 150)
+            self.crea_grano(x, 280)
+
+    def genera_tunnel(self, start_x):
+        for x in range(start_x + 100, start_x + 900, 200):
+            self.crea_ostacolo(x, 100)
+            self.crea_grano(x + 100, 110)
+
+    def genera_super_grano(self, start_x):
+        for x in range(start_x + 100, start_x + 900, 100):
+            self.crea_grano(x, 150)
+            self.crea_grano(x, 220)
+
     def genera_scalinata(self, start_x):
         for i, x in enumerate(range(start_x + 200, start_x + 500, 90)):
             self.crea_ostacolo(x, 100 + (i*50))
@@ -124,12 +134,30 @@ class giocoplatformer(arcade.Window):
             self.crea_grano(x, 315)
         for x in range(start_x + 1200, start_x + 1250, 50):
             self.crea_grano(x, 315)
-            
-    def genera_pianura(self, start_x, end_x):
         
-        pass
+        
+        
             
-        # --- FUNZIONE PRINCIPALE DI GENERAZIONE ---
+    def genera_zig_zag(self, start_x):
+        for x in range(start_x + 100, start_x + 900, 150):
+            altezza = 120 if x % 300 == 0 else 250
+            self.crea_grano(x, altezza)
+
+    def genera_pericolo_alto(self, start_x):
+        for x in range(start_x + 200, start_x + 900, 400):
+            self.crea_ostacolo(x, 180) # Tubi sospesi o molto alti
+
+    def genera_labirinto_base(self, start_x):
+        self.crea_ostacolo(start_x + 200, 105)
+        self.crea_ostacolo(start_x + 400, 105)
+        self.crea_grano(start_x + 300, 250)
+
+    def genera_vuoto_apparente(self, start_x):
+        # Solo grano che fluttua, niente ostacoli
+        for x in range(start_x + 100, start_x + 900, 50):
+            self.crea_grano(x, 180)
+
+    # --- FUNZIONE PRINCIPALE DI GENERAZIONE ---
     def genera_segmento_livello(self, start_x, end_x):
         # Genera Pavimento
         for x in range(start_x, end_x, 64):
@@ -138,35 +166,23 @@ class giocoplatformer(arcade.Window):
             wall.center_y = 32
             self.wall_list.append(wall)
 
-        # Scelta casuale tra i 9 tipi
-        tipo = 1 #random.randint(1, 9)
+        # Scelta casuale tra i 10 tipi
+        tipo = random.randint(1, 10)
 
-        if tipo == 1: self.genera_scalinata(start_x)
-        elif tipo == 2: self.genera_pianura(start_x)
-        elif tipo == 3: self.genera_salti(start_x)  
-        elif tipo == 4: self.genera_tunnel(start_x)
-        elif tipo == 5: self.genera_super_grano(start_x)
-        elif tipo == 6: self.genera_grano(start_x)
-        elif tipo == 7: self.genera_zig_zag(start_x)
-        elif tipo == 8: self.genera_pericolo_alto(start_x)
-        elif tipo == 9: self.genera_labirinto_base(start_x)
+        if tipo == 1: self.genera_pianura(start_x)    #ci sono 3 di grano con spazio tra di loro               G             1
+        elif tipo == 2: self.genera_ostacoli_fitti(start_x)     #ci sono 3 ostacoli con spazio tra di loro       O           1
+        elif tipo == 3: self.genera_salti(start_x) # ci sono 2 tubi con sopra 2 di grano                       G O           2
+        elif tipo == 4: self.genera_tunnel(start_x) # ci sono 4 tubi e 4 di grano tra i tubi                   G O           2
+        elif tipo == 5: self.genera_super_grano(start_x) # ci sono 2 file di grano una sopra l'altra           G             1
+        elif tipo == 6: self.genera_scalinata(start_x)# scala di tubi                                            O           1
+        elif tipo == 7: self.genera_zig_zag(start_x)# riga di grano che per prenderla devi saltare             G             1
+        elif tipo == 8: self.genera_pericolo_alto(start_x)# due tubi sopraelevarti                               O           1
+        elif tipo == 9: self.genera_labirinto_base(start_x)# due tubi e un grano                               G O           2
+        elif tipo == 10: self.genera_vuoto_apparente(start_x)# riga di grano                                   G             1
 
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-            
         self.ultimo_x_generato = end_x
+            
+
 
     def on_draw(self):
                 
