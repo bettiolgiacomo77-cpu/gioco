@@ -1,6 +1,7 @@
 import arcade
 import random
 
+<<<<<<< HEAD
 SCREEN_WIDTH = 920
 SCREEN_HEIGHT = 620
 SCREEN_TITLE = "Llama Lama"
@@ -11,6 +12,10 @@ PLAYER_MOVEMENT_SPEED = 5
 
 SUPER_SPEED = 15  # Velocità durante la super
 SUPER_DURATION = 2.0  # Durata della super in secondi
+=======
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
 
 """  gioco platformer per scuola"""
 
@@ -71,7 +76,11 @@ class giocoplatformer(arcade.Window):
         
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
+<<<<<<< HEAD
             self.babbo,
+=======
+            self.lista_babbo,
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
             gravity_constant=GRAVITY,
             walls= self.wall_list
         )
@@ -209,6 +218,7 @@ class giocoplatformer(arcade.Window):
             arcade.color.BLACK, 15
             )
         
+<<<<<<< HEAD
         # Indicatore Super in alto a sinistra
         colore_super = arcade.color.GREEN if self.grano_raccolto >= 10 else arcade.color.GRAY
         testo_super = "SUPER PRONTA! (Premi E)" if self.grano_raccolto >= 10 else f"Carica Super: {self.grano_raccolto}/10"
@@ -226,6 +236,14 @@ class giocoplatformer(arcade.Window):
             14, 
             bold=True
         )
+=======
+        self.camera.use()
+        
+        # serve per mette il testo che si muove con la camera
+        pos_x = self.camera.position[0] - self.width/2
+        arcade.draw_text(f"Punteggio: {self.punteggio}", pos_x + 20, self.height - 40, arcade.color.WHITE, 16, bold=True)
+        arcade.draw_text(f"Distanza: {int(self.babbo.center_x)}m", pos_x + 250, self.height - 40, arcade.color.BLACK, 16)
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
 
     def on_update(self, delta_time):
         
@@ -245,6 +263,16 @@ class giocoplatformer(arcade.Window):
         # per non far vedere il vuoto 
         camera_x = max(self.camera.position[0], self.width / 2) 
         self.camera.position = (camera_x, self.height / 2)
+<<<<<<< HEAD
+=======
+
+        #gestisce il movimento
+        self.babbo.change_x = 0
+        if self.left_pressed:
+            self.babbo.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed:
+            self.babbo.change_x = PLAYER_MOVEMENT_SPEED
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
             
         #genera nuovi pezzi di mappa    
         if self.babbo.center_x > self.ultimo_x_generato - 2000:
@@ -255,6 +283,23 @@ class giocoplatformer(arcade.Window):
             if sprite.right < self.babbo.center_x - 2000:
                 sprite.remove_from_sprite_lists()
         
+<<<<<<< HEAD
+=======
+        self.babbo.center_x += change_x
+        self.babbo.center_y += change_y
+        
+        # Flip orizzontale in base alla direzione
+        """if change_x < 0: 
+            self.babbo.scale = (-0.1, 0.1)
+        elif change_x > 0:
+            self.babbo.scale = (0.1, 0.1)"""
+
+        if self.babbo.change_x < 0: 
+            self.babbo.scale = -0.1 # Nota: arcade 3.0 gestisce il flip meglio con scale_x
+        elif self.babbo.change_x > 0:
+            self.babbo.scale = 0.1
+
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
         # Collisioni
         collisioni = arcade.check_for_collision_with_list(self.babbo, self.lista_moneta)
                 
@@ -263,9 +308,14 @@ class giocoplatformer(arcade.Window):
             for moneta in collisioni:
                 moneta.remove_from_sprite_lists()
                 self.punteggio += 1
+<<<<<<< HEAD
                 if self.grano_raccolto < 10:
                         self.grano_raccolto += 1    
         
+=======
+                
+        self.physics_engine.update()
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
                 
     def on_key_press(self, tasto, modificatori):
             
@@ -273,6 +323,7 @@ class giocoplatformer(arcade.Window):
             # Salta solo se il motore fisico dice che siamo a terra
             if self.physics_engine.can_jump():
                 self.babbo.change_y = PLAYER_JUMP_SPEED
+<<<<<<< HEAD
             
         if tasto == arcade.key.E:
             if self.grano_raccolto >= 10 and not self.super_attiva:
@@ -282,6 +333,23 @@ class giocoplatformer(arcade.Window):
                 
 def main():
     gioco = giocoplatformer(SCREEN_WIDTH,SCREEN_HEIGHT, SCREEN_TITLE)
+=======
+        if tasto in (arcade.key.LEFT, arcade.key.A):
+            self.left_pressed = True
+        elif tasto in (arcade.key.RIGHT, arcade.key.D):
+            self.right_pressed = True
+    def on_key_release(self, tasto, modificatori):
+        """Gestisce il rilascio dei tasti"""
+        if tasto in (arcade.key.LEFT, arcade.key.A):
+            self.left_pressed = False
+        elif tasto in (arcade.key.RIGHT, arcade.key.D):
+            self.right_pressed = False
+
+
+
+def main():
+    gioco = giocoplatformer(920,620, "Llama lama")
+>>>>>>> 0a11fcb8b73a81070dfd2a76b076ad4642e8c119
     arcade.run()
 
 
