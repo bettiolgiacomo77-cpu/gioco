@@ -31,7 +31,10 @@ class giocoplatformer(arcade.Window):
         self.punti_finali = 0 # per il punteggio
         
         # suoni
+<<<<<<< HEAD
         # Nota: Assicurati che i percorsi dei file siano corretti nella tua cartella assets
+=======
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
         self.suono_mangiare = arcade.load_sound("./assets/mangiare.mp3")
         self.suono_salto = arcade.load_sound("./assets/salto.wav")
         self.suono_morte = arcade.load_sound("./assets/morte.mp3") # suono di morte
@@ -63,6 +66,7 @@ class giocoplatformer(arcade.Window):
         self.ultimo_cambio_sfondo = 0
         self.morto_schermata = False
         
+<<<<<<< HEAD
         # Reset camera (BUG FIX: la camera deve tornare a 0 al restart)
         self.camera.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         
@@ -75,6 +79,17 @@ class giocoplatformer(arcade.Window):
         self.lama.center_y = 250
         self.lista_lama.append(self.lama)
         
+=======
+        # timer
+        self.timer = 15.0
+
+        # lama
+        self.lama = arcade.Sprite("./assets/lama.gif", scale=0.1)
+        self.lama.center_x = 100
+        self.lama.center_y = 250
+        self.lista_lama.append(self.lama)
+        
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
         # genera percorso
         self.genera_segmento_livello(0, 2000)
         
@@ -123,6 +138,7 @@ class giocoplatformer(arcade.Window):
 
             # LOGICA PER EVITARE CHE LE PIATTAFORME SIANO UNA SOPRA L'ALTRA
             y = self.ultima_y_piattaforma
+<<<<<<< HEAD
             # Tentativi limitati per evitare loop infiniti
             for _ in range(10):
                 variazione = random.randint(-150, 150) # Limitato a 150 per salti fattibili
@@ -130,6 +146,16 @@ class giocoplatformer(arcade.Window):
                 if abs(nuova_y - self.ultima_y_piattaforma) >= 80: # Ridotto leggermente per varietà
                     y = nuova_y
                     break
+=======
+            trovata_y = False
+            while not trovata_y:
+                variazione = random.randint(-150, 150) # Limitato a 150 per salti fattibili
+                nuova_y = max(150, min(self.ultima_y_piattaforma + variazione, 500))
+                # Se la differenza di altezza è significativa (ridotta a 100), non ci sarà sovrapposizione fastidiosa
+                if abs(nuova_y - self.ultima_y_piattaforma) >= 100:
+                    y = nuova_y
+                    trovata_y = True
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
 
             # Pedane da 1 a 6 blocchi
             lunghezza_pedana = random.randint(1, 6)
@@ -150,6 +176,7 @@ class giocoplatformer(arcade.Window):
                 si_spina = False
                 si_tubo = False
                 
+<<<<<<< HEAD
                 # Regole Spawn Ostacoli (Logica Lunghezze):
                 if i == lunghezza_pedana // 2 and x_corrente > 600:
                     prob = random.random()
@@ -159,24 +186,46 @@ class giocoplatformer(arcade.Window):
                             si_tubo = True
                         # Cactus solo se la pedana è lunga 4 o 5
                         elif lunghezza_pedana in [4, 5]:
+=======
+                # Regole Spawn Ostacoli (30% probabilità):
+                if i == lunghezza_pedana // 2 and x_corrente > 600:
+                    if random.random() < 0.50: 
+                        if lunghezza_pedana == 6:
+                            si_tubo = True
+                        elif lunghezza_pedana >= 4: # 4 o 5
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
                             si_spina = True
 
                 self.crea_ostacolo(pos_x, y, con_spuntone=si_spina, con_tubo=si_tubo)
                 
                 # Regole Spawn Grano:
+<<<<<<< HEAD
                 # Grano solo se la pedana è lunga 1, 2 o 3
                 if lunghezza_pedana in [1, 2, 3] and i == lunghezza_pedana // 2:
                     if pos_x > self.ultimo_x_grano + 1000:
+=======
+                # Solo su pedane 1-2-3 E ogni 2000 pixel
+                if lunghezza_pedana <= 3 and i == lunghezza_pedana // 2:
+                    if x_corrente > self.ultimo_x_grano + 2000: 
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
                         grano = arcade.Sprite("./assets/grano.webp", 0.3)
                         grano.center_x = pos_x
                         grano.bottom = y + 40
                         self.lista_grano.append(grano)
+<<<<<<< HEAD
                         self.ultimo_x_grano = pos_x
 
             self.ultima_y_piattaforma = y
             x_corrente += (lunghezza_pedana * 50) 
         
         self.ultimo_x_generato = x_corrente
+=======
+                        self.ultimo_x_grano = x_corrente
+
+            self.ultima_y_piattaforma = y
+            x_corrente += (lunghezza_pedana * 50) 
+        self.ultimo_x_generato = end_x
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
             
     def on_draw(self):
         
@@ -198,7 +247,10 @@ class giocoplatformer(arcade.Window):
 
         # disegna il menu
         if not self.gioco_attivo:
+<<<<<<< HEAD
             self.camera.use()
+=======
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
             arcade.draw_texture_rect(self.background,
                                      arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
             
@@ -210,8 +262,12 @@ class giocoplatformer(arcade.Window):
             return
 
         # Disegna il gioco
+<<<<<<< HEAD
         # Usiamo la camera per ottenere la coordinata corretta del background
         coordinate = self.camera.position[0] - SCREEN_WIDTH/2
+=======
+        coordinate = self.camera.position[0] - self.width/2
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
         
         # disegna lo sfondo
         arcade.draw_texture_rect(self.background,
@@ -220,19 +276,35 @@ class giocoplatformer(arcade.Window):
         self.camera.use()
         
         self.wall_list.draw()
+<<<<<<< HEAD
         self.lista_grano.draw()
         self.lista_spuntoni.draw()
         self.lista_tubi.draw() 
+=======
+        
+        self.lista_grano.draw()
+        
+        self.lista_spuntoni.draw()
+
+        self.lista_tubi.draw() 
+        
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
         self.lista_lama.draw()
         
         # cambia il colore del timer
         colore_timer = arcade.color.WHITE if self.timer > 5 else arcade.color.RED
         
         # disegna le scritte
+<<<<<<< HEAD
         # Nota: usiamo coordinate relative alla camera per le UI
         arcade.draw_text(f"ENERGIA: {self.timer:.1f}s", coordinate + 20, SCREEN_HEIGHT - 50,
                          colore_timer, 16, bold=True)
         arcade.draw_text(f"PERCORSO: {int(self.lama.center_x // 10)}m", coordinate + 700, SCREEN_HEIGHT - 50,
+=======
+        arcade.draw_text(f"ENERGIA: {self.timer:.1f}s", coordinate + 20, self.height - 50,
+                         colore_timer, 16, bold=True)
+        arcade.draw_text(f"PERCORSO: {int(self.lama.center_x // 10)}m", coordinate + 700, self.height - 50,
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
                          arcade.color.WHITE, 14)
 
     def on_update(self, delta_time):
@@ -243,9 +315,15 @@ class giocoplatformer(arcade.Window):
         # il lama va avanti da solo
         self.lama.change_x = PLAYER_AUTO_SPEED
         
+<<<<<<< HEAD
         # LOGICA CAMBIO SFONDO OGNI 250m (nel tuo codice avevi 250 nel calcolo e 500 nel commento)
         distanza_metri = int(self.lama.center_x // 10)
         if distanza_metri >= self.ultimo_cambio_sfondo + 250:
+=======
+        # LOGICA CAMBIO SFONDO OGNI 500m
+        distanza_metri = int(self.lama.center_x // 10)
+        if distanza_metri >= self.ultimo_cambio_sfondo + 500:
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
             # Sceglie uno sfondo diverso da quello attuale tra i 3 disponibili
             sfondi_disponibili = [s for s in self.percorso_sfondi if s != self.sfondo_attuale]
             self.sfondo_attuale = random.choice(sfondi_disponibili)
@@ -256,7 +334,11 @@ class giocoplatformer(arcade.Window):
         for tubo in self.lista_tubi:
             if (self.lama.right + PLAYER_AUTO_SPEED > tubo.left and 
                 self.lama.left < tubo.left and
+<<<<<<< HEAD
                 self.lama.bottom < tubo.top - 5): # Tolleranza per salti al pelo
+=======
+                self.lama.bottom < tubo.top - 15):
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
                 self.morte_gioco()
                 return
 
@@ -264,11 +346,16 @@ class giocoplatformer(arcade.Window):
         self.physics_engine.update()
         
         # camera
+<<<<<<< HEAD
         self.camera.position = (self.lama.center_x + 200, SCREEN_HEIGHT / 2)
+=======
+        self.camera.position = (self.lama.center_x, self.height / 2)
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
         
         # tempo
         self.timer -= delta_time
         
+<<<<<<< HEAD
         # Rimuove gli oggetti lontani (ottimizzazione)
         for muro in self.wall_list:
             if muro.right < self.lama.left - 500:
@@ -276,6 +363,15 @@ class giocoplatformer(arcade.Window):
 
         # se non mangi il grano muori
         if self.timer <= 0 or self.lama.top < -100:
+=======
+        # Rimuove gli oggetti
+        for muro in self.wall_list:
+            if muro.right < self.lama.left - 200:
+                muro.remove_from_sprite_lists()
+
+        # se non mangi il grano muori
+        if self.timer <= 0 or self.lama.top < 0:
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
             self.morte_gioco()
         
         # se tocca i cactus muore
@@ -290,7 +386,11 @@ class giocoplatformer(arcade.Window):
             arcade.play_sound(self.suono_mangiare)
             
         # genera percorso
+<<<<<<< HEAD
         if self.lama.center_x > self.ultimo_x_generato - 2000:
+=======
+        if self.lama.center_x > self.ultimo_x_generato - 1500:
+>>>>>>> b22c3136a3c74e6df396f7a98597c763382ae9ea
             self.genera_segmento_livello(self.ultimo_x_generato, self.ultimo_x_generato + 2000)
 
     # funzione interna per gestire la morte
