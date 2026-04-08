@@ -41,6 +41,18 @@ class giocoplatformer(arcade.Window):
         self.background = arcade.load_texture(self.sfondo_attuale)
         self.ultimo_cambio_sfondo = 0 # per gestire i 500m
         
+        # --- NUOVA LOGICA SKIN ---
+        # Carichiamo tutte le skin in una lista di texture
+        self.skin_disponibili = [
+            arcade.load_texture("./assets/lama.png"),
+            arcade.load_texture("./assets/lama2.png"),
+            arcade.load_texture("./assets/lama3.png"),
+            arcade.load_texture("./assets/lama4.png"),
+            arcade.load_texture("./assets/lama5.png")
+        ]
+        self.indice_skin_attuale = 0
+        # -------------------------
+
         # camera
         self.camera = arcade.camera.Camera2D()
         
@@ -61,6 +73,7 @@ class giocoplatformer(arcade.Window):
         self.primo_avvio = True 
         self.ultimo_cambio_sfondo = 0
         self.morto_schermata = False
+        self.indice_skin_attuale = 0 # Reset skin al setup
         
         # Reset camera (BUG FIX: la camera deve tornare a 0 al restart)
         self.camera.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
@@ -69,7 +82,9 @@ class giocoplatformer(arcade.Window):
         self.timer = 15.0
 
         # lama
-        self.lama = arcade.Sprite("./assets/lama.gif", scale=0.1)
+        self.lama = arcade.Sprite()
+        self.lama.texture = self.skin_disponibili[self.indice_skin_attuale]
+        self.lama.scale = 0.15
         self.lama.center_x = 100
         self.lama.center_y = 250
         self.lista_lama.append(self.lama)
@@ -214,7 +229,7 @@ class giocoplatformer(arcade.Window):
         
         # disegna lo sfondo
         arcade.draw_texture_rect(self.background,
-                                 arcade.LBWH(coordinate, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+                                 arcade.LBWH(coordinate - 5, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         
         self.camera.use()
         
@@ -278,6 +293,16 @@ class giocoplatformer(arcade.Window):
             i.remove_from_sprite_lists()
             arcade.play_sound(self.suono_mangiare)
             
+            # --- CAMBIO SKIN AL CONTATTO ---
+            # Avanziamo l'indice e lo riportiamo a 0 se superiamo l'ultima skin
+            self.indice_skin_attuale += 1
+            if self.indice_skin_attuale >= len(self.skin_disponibili):
+                self.indice_skin_attuale = 0
+            
+            # Applichiamo la nuova texture al lama
+            self.lama.texture = self.skin_disponibili[self.indice_skin_attuale]
+            # -------------------------------
+            
         # genera percorso
         if self.lama.center_x > self.ultimo_x_generato - 2000:
             self.genera_segmento_livello(self.ultimo_x_generato, self.ultimo_x_generato + 2000)
@@ -298,7 +323,7 @@ class giocoplatformer(arcade.Window):
                 if self.morto_schermata:
                     self.setup() # resetta se era morto
                 self.gioco_attivo = True
-            return
+            return                                       
 
         if tasto in (arcade.key.UP, arcade.key.W, arcade.key.SPACE):
             if self.physics_engine.can_jump():
