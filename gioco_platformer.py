@@ -165,7 +165,7 @@ class giocoplatformer(arcade.Window):
                 # Regole Spawn Grano:
                 # Grano solo se la pedana è lunga 1, 2 o 3
                 if lunghezza_pedana in [1, 2, 3] and i == lunghezza_pedana // 2:
-                    if pos_x > self.ultimo_x_grano + 1000:
+                    if pos_x > self.ultimo_x_grano + 500:
                         grano = arcade.Sprite("./assets/grano.webp", 0.3)
                         grano.center_x = pos_x
                         grano.bottom = y + 40
@@ -228,9 +228,6 @@ class giocoplatformer(arcade.Window):
         colore_timer = arcade.color.WHITE if self.timer > 5 else arcade.color.RED
         
         # disegna le scritte
-        # Nota: usiamo coordinate relative alla camera per le UI
-        arcade.draw_text(f"ENERGIA: {self.timer:.1f}s", coordinate + 20, SCREEN_HEIGHT - 50,
-                         colore_timer, 16, bold=True)
         arcade.draw_text(f"PERCORSO: {int(self.lama.center_x // 10)}m", coordinate + 700, SCREEN_HEIGHT - 50,
                          arcade.color.WHITE, 14)
 
@@ -265,16 +262,13 @@ class giocoplatformer(arcade.Window):
         # camera
         self.camera.position = (self.lama.center_x + 200, SCREEN_HEIGHT / 2)
         
-        # tempo
-        self.timer -= delta_time
-        
         # Rimuove gli oggetti lontani (ottimizzazione)
         for muro in self.wall_list:
             if muro.right < self.lama.left - 500:
                 muro.remove_from_sprite_lists()
 
         # se non mangi il grano muori
-        if self.timer <= 0 or self.lama.top < -100:
+        if self.lama.top < -100:
             self.morte_gioco()
         
         # se tocca i cactus muore
@@ -285,7 +279,6 @@ class giocoplatformer(arcade.Window):
         collisione = arcade.check_for_collision_with_list(self.lama, self.lista_grano)
         for i in collisione:
             i.remove_from_sprite_lists()
-            self.timer = 15.0
             arcade.play_sound(self.suono_mangiare)
             
         # genera percorso
