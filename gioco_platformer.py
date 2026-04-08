@@ -224,9 +224,6 @@ class giocoplatformer(arcade.Window):
         self.lista_tubi.draw() 
         self.lista_lama.draw()
         
-        # cambia il colore del timer
-        colore_timer = arcade.color.WHITE if self.timer > 5 else arcade.color.RED
-        
         # disegna le scritte
         arcade.draw_text(f"PERCORSO: {int(self.lama.center_x // 10)}m", coordinate + 700, SCREEN_HEIGHT - 50,
                          arcade.color.WHITE, 14)
