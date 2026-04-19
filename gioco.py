@@ -30,6 +30,10 @@ class giocoplatformer(arcade.Window):
         self.morto_schermata = False # per la morte
         self.punti_finali = 0 # per il punteggio
         
+        # --- LOGICA DOPPIO SALTO ---
+        self.salti_effettuati = 0
+        # ---------------------------
+        
         # suoni
         self.suono_mangiare = arcade.load_sound("./assets/mangiare.mp3")
         self.suono_salto = arcade.load_sound("./assets/salto.wav")
@@ -98,6 +102,9 @@ class giocoplatformer(arcade.Window):
             gravity_constant=GRAVITY,
             walls=self.wall_list
         )
+        
+        # Reset salti
+        self.salti_effettuati = 0
         
     # genera ostacolo
     def crea_ostacolo(self, x, y, con_spuntone=False, con_tubo=False):
@@ -251,10 +258,9 @@ class giocoplatformer(arcade.Window):
         # il lama va avanti da solo
         self.lama.change_x = PLAYER_AUTO_SPEED
         
-        # LOGICA CAMBIO SFONDO OGNI 250m (nel tuo codice avevi 250 nel calcolo e 500 nel commento)
+        # LOGICA CAMBIO SFONDO OGNI 250m
         distanza_metri = int(self.lama.center_x // 10)
         if distanza_metri >= self.ultimo_cambio_sfondo + 250:
-            # Sceglie uno sfondo diverso da quello attuale tra i 3 disponibili
             sfondi_disponibili = [s for s in self.percorso_sfondi if s != self.sfondo_attuale]
             self.sfondo_attuale = random.choice(sfondi_disponibili)
             self.background = arcade.load_texture(self.sfondo_attuale)
@@ -270,6 +276,12 @@ class giocoplatformer(arcade.Window):
 
         # fisica
         self.physics_engine.update()
+        
+        # --- RESET DOPPIO SALTO ---
+        # Se il lama tocca terra, resettiamo il contatore dei salti
+        if self.physics_engine.can_jump():
+            self.salti_effettuati = 0
+        # ---------------------------
         
         # camera
         self.camera.position = (self.lama.center_x + 200, SCREEN_HEIGHT / 2)
@@ -323,12 +335,20 @@ class giocoplatformer(arcade.Window):
                 if self.morto_schermata:
                     self.setup() # resetta se era morto
                 self.gioco_attivo = True
-            return                                       
+            return                                         
 
         if tasto in (arcade.key.UP, arcade.key.W, arcade.key.SPACE):
+            # --- LOGICA SALTO E DOPPIO SALTO ---
+            # Se è a terra (can_jump) o se ha fatto solo un salto
             if self.physics_engine.can_jump():
                 self.lama.change_y = PLAYER_JUMP_SPEED
+                self.salti_effettuati = 1 # Primo salto fatto
                 arcade.play_sound(self.suono_salto)
+            elif self.salti_effettuati == 1:
+                self.lama.change_y = PLAYER_JUMP_SPEED
+                self.salti_effettuati = 2 # Secondo salto fatto
+                arcade.play_sound(self.suono_salto)
+            # -----------------------------------
 
 def main():
     gioco = giocoplatformer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
