@@ -1,5 +1,6 @@
 import arcade
 import random
+import os
 
 #  costanti schermo
 SCREEN_WIDTH = 920
@@ -15,6 +16,9 @@ JETPACK_SPEED = 6
 VELOCITA_MIN = 4.0
 VELOCITA_MAX = 7.0
 DISTANZA_INCREMENTO = 350
+
+# nome del file per il record
+HIGHSCORE_FILE = "highscore.txt"
 
 class GiocoPlatformer(arcade.Window):
 
@@ -34,6 +38,7 @@ class GiocoPlatformer(arcade.Window):
         self.gioco_attivo = False
         self.morto_schermata = False 
         self.punti_finali = 0 
+        self.record = self.carica_record() # Carica il record all'avvio
         
         # Logica jepak
         self.jetpack_attivo = False
@@ -67,6 +72,24 @@ class GiocoPlatformer(arcade.Window):
         
         # camera
         self.camera = arcade.camera.Camera2D()
+
+    def carica_record(self):
+        """Legge il record dal file txt. Se il file non esiste, restituisce 0."""
+        if os.path.exists(HIGHSCORE_FILE):
+            try:
+                with open(HIGHSCORE_FILE, "r") as file:
+                    return int(file.read().strip())
+            except:
+                return 0
+        return 0
+
+    def salva_record(self, nuovo_record):
+        """Salva il nuovo record nel file txt."""
+        try:
+            with open(HIGHSCORE_FILE, "w") as file:
+                file.write(str(nuovo_record))
+        except Exception as e:
+            print(f"Errore durante il salvataggio del record: {e}")
 
     def setup(self):
         
@@ -235,9 +258,10 @@ class GiocoPlatformer(arcade.Window):
         if self.morto_schermata:
             self.camera.use()
             arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-            arcade.draw_text("GAME OVER", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 50, arcade.color.RED, 50, align="center", anchor_x="center", bold=True)
-            arcade.draw_text(f"PUNTEGGIO: {self.punti_finali}m", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20, arcade.color.WHITE, 30, align="center", anchor_x="center")
-            arcade.draw_text("Premi SPAZIO per ricominciare", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 80, arcade.color.YELLOW, 20, align="center", anchor_x="center")
+            arcade.draw_text("GAME OVER", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 70, arcade.color.RED, 50, align="center", anchor_x="center", bold=True)
+            arcade.draw_text(f"PUNTEGGIO: {self.punti_finali}m", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 10, arcade.color.WHITE, 26, align="center", anchor_x="center")
+            arcade.draw_text(f"RECORD ASSOLUTO: {self.record}m", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 30, arcade.color.GOLD, 26, align="center", anchor_x="center", bold=True)
+            arcade.draw_text("Premi SPAZIO per ricominciare", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 100, arcade.color.YELLOW, 20, align="center", anchor_x="center")
             return
         
         # schermata di start
@@ -245,7 +269,8 @@ class GiocoPlatformer(arcade.Window):
             self.camera.use()
             arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
             arcade.draw_text("LLAMA LAMA SURVIVAL", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 50, arcade.color.WHITE, 40, align="center", anchor_x="center", bold=True)
-            arcade.draw_text("Premi SPAZIO per iniziare", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 50, arcade.color.YELLOW, 20, align="center", anchor_x="center")
+            arcade.draw_text(f"RECORD DA BATTERE: {self.record}m", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 10, arcade.color.GOLD, 22, align="center", anchor_x="center")
+            arcade.draw_text("Premi SPAZIO per iniziare", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 70, arcade.color.YELLOW, 20, align="center", anchor_x="center")
             return
 
         # lo sfondo segue la telecamera
@@ -264,7 +289,8 @@ class GiocoPlatformer(arcade.Window):
         # disegno scritte
         metri = int(self.lama.center_x // 10)
         arcade.draw_text(f"PERCORSO: {metri}m", coordinate_x + 20, SCREEN_HEIGHT - 40, arcade.color.WHITE, 16, bold=True)
-        arcade.draw_text(f"VELOCITÀ: {self.velocita_attuale:.1f}", coordinate_x + 20, SCREEN_HEIGHT - 70, arcade.color.CYAN, 14)
+        arcade.draw_text(f"RECORD: {self.record}m", coordinate_x + 20, SCREEN_HEIGHT - 65, arcade.color.GOLD, 14, bold=True)
+        arcade.draw_text(f"VELOCITÀ: {self.velocita_attuale:.1f}", coordinate_x + 20, SCREEN_HEIGHT - 90, arcade.color.CYAN, 14)
         
         # disegno scritte jetpak
         if self.jetpack_attivo:
@@ -344,6 +370,12 @@ class GiocoPlatformer(arcade.Window):
     def morte_gioco(self):
         
         self.punti_finali = int(self.lama.center_x // 10)
+        
+        # Controllo se è stato battuto il record
+        if self.punti_finali > self.record:
+            self.record = self.punti_finali
+            self.salva_record(self.record) # Salva su file txt
+            
         self.gioco_attivo = False
         self.morto_schermata = True
         self.camera.position = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
